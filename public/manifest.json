@@ -1,0 +1,22 @@
+{
+  "name": "NutriOrder",
+  "short_name": "NutriOrder",
+  "description": "Dieta personalizzata e ordini al ristorante",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDF8FA",
+  "theme_color": "#50162C",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
