@@ -55,6 +55,21 @@ function NutritionistView({ supabase }) {
   const [newAccount, setNewAccount] = useState({ nome: '', telefono: '', password: '', ruolo: 'cliente', paziente_id: '', ristorante_id: '' })
   const [accountMsg, setAccountMsg] = useState(null)
   const [newDish, setNewDish] = useState({ pasto: 'pranzo', nome: '', ristorante: '', ristorante_id: null, ingredienti: [{ nome: '', quantita: 100, unita: 'g' }] })
+const [newPaziente, setNewPaziente] = useState({ nome: '', eta: '', obiettivo: '', msg: null })
+
+const handleAddPaziente = async () => {
+  if (!newPaziente.nome) return
+  const { data, error } = await supabase.from('pazienti').insert({
+    nome: newPaziente.nome,
+    eta: newPaziente.eta ? parseInt(newPaziente.eta) : null,
+    obiettivo: newPaziente.obiettivo || null,
+  }).select().single()
+
+  if (error) return setNewPaziente({ ...newPaziente, msg: { type: 'error', text: 'Errore durante il salvataggio.' } })
+  
+  setPazienti(prev => [...prev, data])
+  setNewPaziente({ nome: '', eta: '', obiettivo: '', msg: { type: 'success', text: `✅ Paziente ${data.nome} aggiunto!` } })
+}
 
   useEffect(() => {
     const load = async () => {
@@ -205,7 +220,7 @@ function NutritionistView({ supabase }) {
     <div style={{ padding: 24 }}>
       <h2 style={{ color: C.primary, fontSize: 20, margin: '0 0 20px' }}>Pannello Nutrizionista</h2>
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {[['pazienti', '👥 Pazienti'], ['account', '🔐 Account']].map(([id, label]) => (
+        {[['pazienti', '👥 Pazienti'], ['nuovo-paziente', '➕ Nuovo paziente'], ['account', '🔐 Account']].map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} style={{ flex: 1, padding: 8, border: 'none', background: tab === id ? C.primary : C.warm, color: tab === id ? C.white : C.muted, borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
             {label}
           </button>
@@ -220,6 +235,22 @@ function NutritionistView({ supabase }) {
           <span style={{ background: C.warm, color: C.accent, padding: '4px 12px', borderRadius: 20, fontSize: 12, border: `1px solid ${C.border}` }}>Dieta →</span>
         </div>
       ))}
+      {tab === 'nuovo-paziente' && (
+  <div>
+    <p style={{ color: C.muted, fontSize: 13, marginBottom: 16 }}>Aggiungi un nuovo paziente</p>
+    {newPaziente.msg && (
+      <div style={{ background: newPaziente.msg.type === 'success' ? '#F8E8F0' : '#FFF0F0', border: `1px solid ${newPaziente.msg.type === 'success' ? C.accentLight : '#FFCCCC'}`, borderRadius: 10, padding: '12px 16px', marginBottom: 16, color: newPaziente.msg.type === 'success' ? C.primary : '#C0392B', fontSize: 13 }}>
+        {newPaziente.msg.text}
+      </div>
+    )}
+    <input value={newPaziente.nome} onChange={e => setNewPaziente({ ...newPaziente, nome: e.target.value })} placeholder="Nome completo" style={inputStyle} />
+    <input type="number" value={newPaziente.eta} onChange={e => setNewPaziente({ ...newPaziente, eta: e.target.value })} placeholder="Età" style={inputStyle} />
+    <input value={newPaziente.obiettivo} onChange={e => setNewPaziente({ ...newPaziente, obiettivo: e.target.value })} placeholder="Obiettivo (es. Dimagrimento)" style={inputStyle} />
+    <button onClick={handleAddPaziente} style={{ width: '100%', padding: 12, background: `linear-gradient(135deg, ${C.primary}, ${C.primaryLight})`, color: C.white, border: 'none', borderRadius: 10, fontSize: 14, cursor: 'pointer', fontFamily: 'Georgia, serif' }}>
+      ✓ Aggiungi paziente
+    </button>
+  </div>
+)}
       {tab === 'account' && (
         <div>
           <p style={{ color: C.muted, fontSize: 13, marginBottom: 16 }}>Crea un account per un cliente o ristoratore</p>
